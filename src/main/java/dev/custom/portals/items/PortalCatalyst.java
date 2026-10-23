@@ -1,26 +1,27 @@
 package dev.custom.portals.items;
+
+import java.util.function.Supplier;
+
 import dev.custom.portals.util.PortalHelper;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
-
-import java.util.UUID;
+import net.minecraft.world.level.block.Block;
 
 public class PortalCatalyst extends Item {
 
-    private Block portalBlock;
+    private final Supplier<? extends Block> portalBlock;
 
-    public PortalCatalyst(net.minecraft.world.item.Item.Properties settings, Block portal) {
+    public PortalCatalyst(Item.Properties settings, Supplier<? extends Block> portalBlock) {
         super(settings);
-        this.portalBlock = portal;
+        this.portalBlock = portalBlock;
     }
-    
+
     @Override
     public InteractionResult useOn(UseOnContext ctx) {
         Player playerEntity = ctx.getPlayer();
@@ -35,7 +36,7 @@ public class PortalCatalyst extends Item {
             case UP -> pos.above();
             case DOWN -> pos.below();
         };
-        if (PortalHelper.buildPortal(pos, portalBlock, playerEntity.getUUID(), world)) {
+        if (PortalHelper.buildPortal(pos, portalBlock.get(), playerEntity.getUUID(), world)) {
             if (playerEntity != null) {
                 playerEntity.playSound(SoundEvents.FLINTANDSTEEL_USE, 1.0F, 1.0F);
             }
