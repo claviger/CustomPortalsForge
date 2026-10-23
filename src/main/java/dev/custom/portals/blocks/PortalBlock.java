@@ -4,7 +4,6 @@ import dev.custom.portals.CustomPortals;
 import dev.custom.portals.config.CPSettings;
 import dev.custom.portals.data.CustomPortal;
 import dev.custom.portals.data.PortalData;
-import dev.custom.portals.data.PortalRegistry;
 import dev.custom.portals.registry.CPItems;
 import dev.custom.portals.registry.CPParticles;
 import dev.custom.portals.util.EntityMixinAccess;
@@ -12,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -90,10 +90,12 @@ public class PortalBlock extends Block implements EntityBlock, SimpleWaterlogged
       if (playerEntity.isShiftKeyDown() && itemStack.isEmpty()) {
          CustomPortal portal = PortalData.getPortalFromPos(world, blockPos);
          if (portal == null) return InteractionResult.FAIL;
-         portal.setSpawnPos(blockPos);
-         PortalData.markChanged(world);
-         if (world.isClientSide())
+         if (world.isClientSide()) {
             playerEntity.sendSystemMessage(Component.nullToEmpty("Set portal's spawn position to " + CustomPortals.blockPosToString(blockPos)));
+         } else {
+            portal.setSpawnPos(blockPos);
+            PortalData.markChanged(world);
+         }
          return InteractionResult.SUCCESS;
       }
       return InteractionResult.TRY_WITH_EMPTY_HAND;
@@ -135,10 +137,11 @@ public class PortalBlock extends Block implements EntityBlock, SimpleWaterlogged
    @Override
    public BlockState playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
       super.playerWillDestroy(world, pos, state, player);
-      PortalRegistry registry = PortalData.get(world);
-      CustomPortal portal = registry.getPortalFromPos(pos);
+      if (world.isClientSide())
+         return state;
+      CustomPortal portal = PortalData.getPortalFromPos(world, pos);
       if(portal != null) {
-         registry.unregister(portal);
+         PortalData.get(world).unregister(portal);
          PortalData.markChanged(world);
       }
       return state;
@@ -191,14 +194,15 @@ public class PortalBlock extends Block implements EntityBlock, SimpleWaterlogged
       Level world = (Level)worldView;
       boolean bl = axis2 == Direction.Axis.Y ? axis2 == axis && axis.isVertical() : axis2 != axis && axis.isHorizontal();
       if(!bl && !newState.is(this) && !PortalShape.findAnyShape(worldView, pos, axis2).isComplete()) {
-         PortalRegistry registry = PortalData.get(world);
-         CustomPortal portal = registry.getPortalFromPos(pos);
+         CustomPortal portal = PortalData.getPortalFromPos(world, pos);
          if(portal != null) {
-            if (newState.getBlock().getDescriptionId().equals(portal.getFrameId()))
+            if (BuiltInRegistries.BLOCK.getKey(newState.getBlock()).toString().equals(portal.getFrameId()))
                return super.updateShape(state, worldView, scheduledTickView, pos, direction, posFrom, newState, random);
-            registry.unregister(portal);
-            PortalData.markChanged(world);
-            dropCatalyst(portal, world);
+            if (!world.isClientSide()) {
+               PortalData.get(world).unregister(portal);
+               PortalData.markChanged(world);
+               dropCatalyst(portal, world);
+            }
          }
          return Blocks.AIR.defaultBlockState();
       }
@@ -215,6 +219,8 @@ public class PortalBlock extends Block implements EntityBlock, SimpleWaterlogged
 
    @Override
    public void neighborChanged(BlockState blockState, Level world, BlockPos blockPos, Block block, @Nullable Orientation wireOrientation, boolean bl) {
+      if (world.isClientSide())
+         return;
       CustomPortal portal = PortalData.getPortalFromPos(world, blockPos);
       if (portal == null)
          return;

@@ -52,12 +52,16 @@
     "customportals.configuration.alwaysInterdim": "Позволяет телепортироваться сквозь измерения",
     "customportals.configuration.alwaysHaste": "Мгновенная телепортация",
     "customportals.configuration.privatePortals": "Приватный портал",
+    "customportals.configuration.privatePortals.tooltip": "Разрешает связывать порталы, только если оба построены одним и тем же игроком. Полезно для серверов.",
     "customportals.configuration.redstone": "Редстоун...",
+    "customportals.configuration.redstone.tooltip": "Внимание: при значении «Turns Portals On» ваши порталы будут выключены без сигнала редстоуна!",
     "customportals.configuration.muteAmbientSounds": "Отключить звуковые эффекты окружающего пространства портала",
     "customportals.configuration.muteTeleportSounds": "Отключить звуковые эффекты телепортации игрока",
     "customportals.configuration.defaultRange": "Обычный радиус портала (В блоках)",
     "customportals.configuration.rangeWithEnhancer": "Радиус действия портала с усиливающей руной",
     "customportals.configuration.rangeWithStrongEnhancer": "Радиус действия портала с мощной усиливающей руной",
     "customportals.configuration.isWhitelist": "Белый список или чёрный список",
-    "customportals.configuration.filteredBlocks": "Отфильтрованные блоки"
+    "customportals.configuration.isWhitelist.tooltip": "Является ли список фильтруемых блоков белым списком (true) или чёрным списком (false)",
+    "customportals.configuration.filteredBlocks": "Отфильтрованные блоки",
+    "customportals.configuration.filteredBlocks.tooltip": "Позволяет выбрать, какие блоки можно использовать для рамки портала. Указывается ID блока, например \"minecraft:stone\" для камня."
 }

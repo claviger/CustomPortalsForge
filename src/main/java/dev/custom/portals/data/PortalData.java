@@ -25,7 +25,7 @@ public final class PortalData {
 
     @Nullable
     public static CustomPortal getPortalFromPos(Level level, BlockPos pos) {
-        return get(level).getPortalFromPos(pos);
+        return get(level).getPortalFromPos(level.dimension().identifier().toString(), pos);
     }
 
     /** Call after mutating the registry on the server: persists and pushes to all clients. No-op on the client. */

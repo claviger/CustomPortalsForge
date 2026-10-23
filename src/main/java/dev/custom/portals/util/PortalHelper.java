@@ -203,24 +203,27 @@ public class PortalHelper {
             world.setBlockAndUpdate(pos, portalState);
         }
 
-        SpawnPosData spawnPosData = determineSpawnPos(portalBlocks, portalBlock, axis, world);
+        // the registry is server-authoritative; clients receive the new portal through the sync payload
+        if (!world.isClientSide()) {
+            SpawnPosData spawnPosData = determineSpawnPos(portalBlocks, portalBlock, axis, world);
 
-        CustomPortal portal = new CustomPortal(frameId, world.dimension().identifier().toString(),
-                portalBlock.defaultMapColor(), spawnPosData.blockPos, portalBlocks, spawnPosData.offsetX,
-                spawnPosData.offsetZ, creatorId);
-        PortalData.get(world).register(portal);
+            CustomPortal portal = new CustomPortal(frameId, world.dimension().identifier().toString(),
+                    portalBlock.defaultMapColor(), spawnPosData.blockPos, portalBlocks, spawnPosData.offsetX,
+                    spawnPosData.offsetZ, creatorId);
+            PortalData.get(world).register(portal);
 
-        // register any runes that were already on the portal frames; sync once after all of them are applied
-        for (BlockPos framePos : frames) {
-            List<BlockPos> frameAdjacents = getAdjacents(framePos);
-            for (BlockPos adj : frameAdjacents) {
-                Block block = world.getBlockState(adj).getBlock();
-                if (block instanceof AbstractRuneBlock)
-                    if (((AbstractRuneBlock)block).getBlockMountedPos(adj, world.getBlockState(adj)).equals(framePos))
-                        ((AbstractRuneBlock)block).attachWithoutSync(portal, world);
+            // register any runes that were already on the portal frames; sync once after all of them are applied
+            for (BlockPos framePos : frames) {
+                List<BlockPos> frameAdjacents = getAdjacents(framePos);
+                for (BlockPos adj : frameAdjacents) {
+                    Block block = world.getBlockState(adj).getBlock();
+                    if (block instanceof AbstractRuneBlock)
+                        if (((AbstractRuneBlock)block).getBlockMountedPos(adj, world.getBlockState(adj)).equals(framePos))
+                            ((AbstractRuneBlock)block).attachWithoutSync(portal, world);
+                }
             }
+            PortalData.markChanged(world);
         }
-        PortalData.markChanged(world);
         return true;
     }
 

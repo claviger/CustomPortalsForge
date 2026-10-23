@@ -25,6 +25,7 @@ public class PortalCatalyst extends Item {
     @Override
     public InteractionResult useOn(UseOnContext ctx) {
         Player playerEntity = ctx.getPlayer();
+        if (playerEntity == null) return InteractionResult.PASS;
         Level world = ctx.getLevel();
         BlockPos pos = new BlockPos(ctx.getClickedPos());
         Direction dir = ctx.getClickedFace();
@@ -37,9 +38,7 @@ public class PortalCatalyst extends Item {
             case DOWN -> pos.below();
         };
         if (PortalHelper.buildPortal(pos, portalBlock.get(), playerEntity.getUUID(), world)) {
-            if (playerEntity != null) {
-                playerEntity.playSound(SoundEvents.FLINTANDSTEEL_USE, 1.0F, 1.0F);
-            }
+            playerEntity.playSound(SoundEvents.FLINTANDSTEEL_USE, 1.0F, 1.0F);
             ctx.getItemInHand().shrink(1);
             return InteractionResult.SUCCESS;
         }

@@ -51,18 +51,21 @@ public class AbstractRuneBlock extends FaceAttachedHorizontalDirectionalBlock {
 
     /** Adds this rune to the portal and syncs the registry. */
     public final void registerOnPortal(CustomPortal portal, Level world) {
+        if (world.isClientSide()) return;
         applyTo(portal, world);
         PortalData.markChanged(world);
     }
 
     /** Removes this rune from the portal and syncs the registry. */
     public final void unregisterOnPortal(CustomPortal portal, Level world) {
+        if (world.isClientSide()) return;
         removeFrom(portal, world);
         PortalData.markChanged(world);
     }
 
     /** Adds this rune to the portal without syncing; the caller must call {@link PortalData#markChanged} afterwards. */
     public final void attachWithoutSync(CustomPortal portal, Level world) {
+        if (world.isClientSide()) return;
         applyTo(portal, world);
     }
 
